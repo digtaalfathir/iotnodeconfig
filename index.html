@@ -383,8 +383,13 @@
     <div class="title">IoT-Node BLE Configuration</div>
     <div class="subtitle">Bluetooth Low Energy Setup</div>
   </div>
-  <button class="btn btn-primary" onclick="connectBLE()">🔗 Connect BLE</button>
+
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-primary" onclick="connectBLE()">🔗 Connect BLE</button>
+    <button class="btn" onclick="getConfig()">📥 Get Config</button>
+  </div>
 </header>
+
 
 <div class="container">
 
@@ -536,17 +541,13 @@ async function connectBLE(){
   const service = await server.getPrimaryService(SERVICE_UUID);
   bleChar = await service.getCharacteristic(CHAR_UUID);
 
-  // enable notify
   await bleChar.startNotifications();
-  bleChar.addEventListener("characteristicvaluechanged", onBleMessage);
+  bleChar.addEventListener(
+    "characteristicvaluechanged",
+    onBleMessage
+  );
 
-  console.log("BLE connected, waiting before GET_CONFIG...");
-
-  setTimeout(async () => {
-    console.log("Sending CMD:GET_CONFIG");
-    await bleSend("CMD:GET_CONFIG");
-  }, 300);
-
+  console.log("BLE connected, ready.");
   alert("BLE connected");
 }
 
@@ -925,6 +926,16 @@ function parseRulesArray(arr) {
     outputRules[q].logic = logic;
     outputRules[q].inputs = inputs ? inputs.split(",") : [];
   });
+}
+
+async function getConfig() {
+  if (!bleChar) {
+    alert("BLE not connected");
+    return;
+  }
+
+  console.log("Requesting config from device...");
+  await bleSend("CMD:GET_CONFIG");
 }
 
 /* INIT */
