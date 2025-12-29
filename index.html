@@ -1,220 +1,295 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="utf-8" />
+<title>IoT-Node BLE Configuration</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>IoT Node BLE Config</title>
 
 <style>
-  body {
-    font-family: system-ui, Arial, sans-serif;
-    background: #f2f4f7;
-    padding: 20px;
-    max-width: 480px;
-    margin: auto;
-  }
-
-  h2 {
-    text-align: center;
-  }
-
-  .card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-  }
-
-  label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
-    display: block;
-    margin-top: 10px;
-  }
-
-  input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    font-size: 14px;
-  }
-
-  button {
-    border: none;
-    border-radius: 6px;
-    background: #2563eb;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  button.secondary {
-    background: #374151;
-  }
-
-  button:disabled {
-    opacity: 0.5;
-  }
-
-  #status {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 10px;
-  }
-
-  textarea {
-    width: 100%;
-    height: 120px;
-    font-family: monospace;
-    font-size: 13px;
-    margin-top: 6px;
-  }
+:root {
+  --bg:#f2f4f7; --card:#fff; --border:#d0d7de;
+  --primary:#2563eb; --success:#16a34a;
+  --warning:#f59e0b; --danger:#dc2626;
+  --text:#111827; --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+header{
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:#e5e7eb;padding:18px 24px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+header .title{font-size:18px;font-weight:600}
+header .subtitle{font-size:12px;color:#9ca3af}
+.container{max-width:1100px;margin:24px auto;padding:0 16px}
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:20px;margin-bottom:20px;
+}
+.card h3{margin-top:0;display:flex;gap:8px}
+.card h3::before{content:"▌";color:var(--primary)}
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+label{font-size:13px;font-weight:600;color:var(--muted)}
+input,select{
+  width:100%;padding:10px;border-radius:6px;
+  border:1px solid var(--border);font-size:14px;
+}
+.btn{padding:10px 14px;border-radius:6px;font-weight:600;border:none;cursor:pointer}
+.btn-primary{background:var(--primary);color:#fff}
+.action-panel{
+  position:sticky;bottom:0;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:14px;padding:16px;background:#f8fafc;
+  border-top:1px solid var(--border);
+}
+.action-btn{
+  height:52px;border-radius:8px;font-size:15px;
+  font-weight:600;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.action-btn.primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.action-btn.secondary{background:#374151;color:#fff}
+.rule-card{
+  background:#f8fafc;border:1px solid var(--border);
+  border-radius:8px;padding:16px;margin-bottom:12px;
+}
+.input-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));
+  gap:6px;margin-top:8px;
+}
+.input-checkbox{
+  padding:6px 8px;border:1px solid var(--border);
+  border-radius:4px;cursor:pointer;font-size:13px;
+}
+.input-checkbox.checked{background:var(--primary);color:#fff}
+footer{text-align:center;font-size:12px;color:var(--muted);margin:20px}
 </style>
 </head>
 
 <body>
 
-<h2>🔧 IoT Node BLE Config</h2>
+<header>
+  <div>
+    <div class="title">IoT-Node BLE Configuration</div>
+    <div class="subtitle">Bluetooth Low Energy Setup</div>
+  </div>
+  <button class="btn btn-primary" onclick="connectBLE()">🔗 Connect BLE</button>
+</header>
 
-<!-- ================= BLE ================= -->
+<div class="container">
+
+<!-- BASIC -->
 <div class="card">
-  <button onclick="connectBLE()">🔗 Connect BLE</button>
-  <div id="status">Status: belum terkoneksi</div>
+<h3>Basic Configuration</h3>
+<div class="grid">
+  <div>
+    <label>Box ID</label>
+    <input type="number" id="boxID" min="1" max="99">
+  </div>
+</div>
 </div>
 
-<!-- ================= RTC ================= -->
+<!-- RTC -->
 <div class="card">
-  <h3>⏱ Set Timestamp</h3>
-
-  <label>Tanggal</label>
-  <input type="date" id="rtcDate" />
-
-  <label>Waktu</label>
-  <input type="time" id="rtcTime" step="1" />
-
-  <button onclick="sendRTC()" id="rtcBtn" disabled>
-    Apply Timestamp
-  </button>
+<h3>Timestamp</h3>
+<div class="grid">
+  <div>
+    <label>Date</label>
+    <input type="date" id="rtcDate">
+  </div>
+  <div>
+    <label>Time</label>
+    <input type="time" id="rtcTime" step="1">
+  </div>
+</div>
+<button class="btn btn-primary" style="margin-top:12px" onclick="applyRTC()">⏱ Apply Timestamp</button>
+<span id="rtcStatus"></span>
 </div>
 
-<!-- ================= CONFIG ================= -->
+<!-- NETWORK -->
 <div class="card">
-  <h3>💾 Device Config</h3>
+<h3>Network Configuration</h3>
+<div class="grid">
+  <div>
+    <label>Network Mode</label>
+    <select id="networkMode">
+      <option value="wifi">WiFi</option>
+      <option value="ethernet">Ethernet</option>
+      <option value="hybrid">Hybrid</option>
+    </select>
+  </div>
+  <div>
+    <label>Priority</label>
+    <select id="networkPriority">
+      <option value="ethernet">Ethernet</option>
+      <option value="wifi">WiFi</option>
+    </select>
+  </div>
+  <div>
+    <label>WiFi SSID</label>
+    <input type="text" id="wifiSSID">
+  </div>
+  <div>
+    <label>WiFi Password</label>
+    <input type="password" id="wifiPassword">
+  </div>
+</div>
+</div>
 
-  <label>Config JSON</label>
-  <textarea id="configJson"></textarea>
+<!-- TRANSPORT -->
+<div class="card">
+<h3>Transport Configuration</h3>
+<div class="grid">
+  <div>
+    <label>Protocol</label>
+    <select id="commMode">
+      <option value="mqtt">MQTT</option>
+      <option value="tcp">TCP</option>
+      <option value="httppost">HTTP POST</option>
+      <option value="ws">WebSocket</option>
+    </select>
+  </div>
+  <div>
+    <label>Host</label>
+    <input type="text" id="serverIP">
+  </div>
+  <div>
+    <label>Port</label>
+    <input type="number" id="monitoringPort">
+  </div>
+  <div>
+    <label>Path</label>
+    <input type="text" id="serverPath">
+  </div>
+</div>
+</div>
 
-  <button onclick="sendConfig()" id="cfgBtn" disabled>
-    Save Config
-  </button>
+<!-- RULES -->
+<div class="card">
+<h3>Output Rules</h3>
+<div id="rulesContainer"></div>
+</div>
+
+<div class="action-panel">
+<button class="action-btn primary" onclick="saveConfig()">💾 Save Config</button>
+<button class="action-btn secondary" onclick="downloadConfig()">📥 Download JSON</button>
+</div>
+
+<footer>BLE Config Panel • IoT Node</footer>
 </div>
 
 <script>
-/* ================= BLE UUID ================= */
-const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-const CHAR_UUID    = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+/* ================= BLE ================= */
+const SERVICE_UUID="4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const CHAR_UUID="beb5483e-36e1-4688-b7f5-ea07361b26a8";
+let bleChar=null;
 
-/* ================= STATE ================= */
-let bleChar = null;
+async function connectBLE(){
+  const device=await navigator.bluetooth.requestDevice({
+    acceptAllDevices:true,optionalServices:[SERVICE_UUID]
+  });
+  const server=await device.gatt.connect();
+  const service=await server.getPrimaryService(SERVICE_UUID);
+  bleChar=await service.getCharacteristic(CHAR_UUID);
+  alert("BLE connected");
+}
 
-/* ================= BLE CONNECT ================= */
-async function connectBLE() {
-  try {
-    const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [SERVICE_UUID]
-    });
+async function bleSend(txt){
+  if(!bleChar) return alert("BLE not connected");
+  await bleChar.writeValue(new TextEncoder().encode(txt));
+}
 
-    const server = await device.gatt.connect();
-    const service = await server.getPrimaryService(SERVICE_UUID);
-    bleChar = await service.getCharacteristic(CHAR_UUID);
-
-    document.getElementById("rtcBtn").disabled = false;
-    document.getElementById("cfgBtn").disabled = false;
-
-    document.getElementById("status").innerText =
-      "Status: connected to " + (device.name || "BLE Device");
-
-    initRTCInputs();
-    loadDefaultConfig();
-
-  } catch (err) {
-    alert("BLE connect failed: " + err);
-    console.error(err);
+/* ================= RULES ================= */
+const NUM_INPUTS=15, NUM_OUTPUTS=4;
+let outputRules={};
+function initRules(){
+  for(let q=1;q<=NUM_OUTPUTS;q++)
+    outputRules["Q"+q]={logic:"OFF",inputs:[]};
+}
+function renderRules(){
+  const c=document.getElementById("rulesContainer");
+  c.innerHTML="";
+  for(let q=1;q<=NUM_OUTPUTS;q++){
+    const r=outputRules["Q"+q];
+    const div=document.createElement("div");
+    div.className="rule-card";
+    div.innerHTML=`<b>Q${q}</b>
+      <select onchange="setLogic(${q},this.value)">
+        <option ${r.logic=="OFF"?"selected":""}>OFF</option>
+        <option ${r.logic=="OR"?"selected":""}>OR</option>
+        <option ${r.logic=="AND"?"selected":""}>AND</option>
+        <option ${r.logic=="NOT"?"selected":""}>NOT</option>
+      </select>
+      <div class="input-grid">
+        ${[...Array(NUM_INPUTS)].map((_,i)=>{
+          const k="I"+(i+1);
+          const ck=r.inputs.includes(k)?"checked":"";
+          return `<label class="input-checkbox ${ck}">
+          <input type="checkbox" ${ck}
+          onchange="toggleInput(${q},'${k}')">${k}</label>`;
+        }).join("")}
+      </div>`;
+    c.appendChild(div);
   }
 }
-
-/* ================= SEND HELPER ================= */
-async function sendLine(text) {
-  if (!bleChar) return;
-  const enc = new TextEncoder();
-  await bleChar.writeValue(enc.encode(text));
-}
-
-/* ================= RTC ================= */
-function initRTCInputs() {
-  const now = new Date();
-  const pad = n => n.toString().padStart(2, "0");
-
-  document.getElementById("rtcDate").value =
-    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-
-  document.getElementById("rtcTime").value =
-    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-}
-
-async function sendRTC() {
-  const d = document.getElementById("rtcDate").value;
-  const t = document.getElementById("rtcTime").value;
-  if (!d || !t) return alert("Tanggal & waktu wajib diisi");
-
-  const epoch = Math.floor(new Date(`${d}T${t}`).getTime() / 1000);
-
-  await sendLine(`RTC,UNIX,${epoch}`);
-  alert("RTC sent via BLE");
+function setLogic(q,v){outputRules["Q"+q].logic=v;renderRules()}
+function toggleInput(q,k){
+  const r=outputRules["Q"+q];
+  if(r.inputs.includes(k)) r.inputs=r.inputs.filter(x=>x!==k);
+  else r.logic=="NOT"?r.inputs=[k]:r.inputs.push(k);
+  renderRules();
 }
 
 /* ================= CONFIG ================= */
-function loadDefaultConfig() {
-  const example = {
-    device: { boxID: 1 },
-    network: { mode: "hybrid", priority: "wifi" },
-    transport: {
-      type: "tcp",
-      host: "mqtt.thingsboard.cloud",
-      port: 1883,
-      path: "/wsiot"
+function getConfig(){
+  return {
+    device:{boxID:+boxID.value||0},
+    network:{
+      mode:networkMode.value,
+      priority:networkPriority.value
     },
-    wifi: {
-      ssid: "Alaadiyaat",
-      password: "alaadiyaat25"
+    transport:{
+      type:commMode.value,
+      host:serverIP.value,
+      port:+monitoringPort.value||0,
+      path:serverPath.value
     },
-    rules: []
+    wifi:{
+      ssid:wifiSSID.value,
+      password:wifiPassword.value
+    },
+    rules:Object.entries(outputRules)
+      .filter(([k,v])=>v.logic!="OFF"&&v.inputs.length)
+      .map(([k,v])=>`${k}:${v.logic}:${v.inputs.join(",")}`)
   };
-
-  document.getElementById("configJson").value =
-    JSON.stringify(example, null, 2);
 }
 
-async function sendConfig() {
-  const text = document.getElementById("configJson").value.trim();
-  if (!text) return alert("Config kosong");
-
-  try {
-    JSON.parse(text);
-  } catch {
-    return alert("JSON tidak valid");
-  }
-
-  await sendLine("CFG,BEGIN");
-  await sendLine("CFG,DATA," + text);
-  await sendLine("CFG,END");
-
-  alert("Config sent via BLE\nDevice will restart");
+async function saveConfig(){
+  await bleSend("CMD:CONFIG:"+JSON.stringify(getConfig()));
+  alert("Config sent via BLE");
 }
+
+async function applyRTC(){
+  if(!rtcDate.value||!rtcTime.value) return;
+  await bleSend(`CMD:RTC:${rtcDate.value} ${rtcTime.value}`);
+  rtcStatus.textContent="RTC sent via BLE";
+}
+
+function downloadConfig(){
+  const blob=new Blob([JSON.stringify(getConfig(),null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="config.json";a.click();
+}
+
+/* INIT */
+initRules();renderRules();
 </script>
-
 </body>
 </html>
