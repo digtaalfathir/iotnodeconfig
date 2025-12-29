@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>IoT-Node BLE Configuration</title>
+<title>IoT-Node Configuration</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
     :root {
@@ -534,6 +534,8 @@ const CHAR_UUID_TX="beb5483e-36e1-4688-b7f5-ea07361b26a9";
 let bleChar=null;
 
 async function connectBLE() {
+  console.log("Connecting BLE...");
+
   const device = await navigator.bluetooth.requestDevice({
     acceptAllDevices: true,
     optionalServices: [SERVICE_UUID]
@@ -543,17 +545,18 @@ async function connectBLE() {
   const service = await server.getPrimaryService(SERVICE_UUID);
   bleChar = await service.getCharacteristic(CHAR_UUID);
 
-  // ✅ 1. PASANG LISTENER DULU
+  // 1️⃣ PASANG LISTENER DULU
   bleChar.addEventListener(
     "characteristicvaluechanged",
     onBleMessage
   );
 
-  // ✅ 2. BARU START NOTIFY
+  // 2️⃣ BARU AKTIFKAN NOTIFY
   await bleChar.startNotifications();
 
-  alert("BLE connected");
+  console.log("BLE connected & notifications enabled");
 }
+
 
 function onBleMessage(event) {
   const value = new TextDecoder().decode(event.target.value);
