@@ -1,94 +1,220 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>BLE Simple Sender</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IoT Node BLE Config</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      max-width: 400px;
-      margin: auto;
-      background: #f5f5f5;
-    }
-    h2 {
-      text-align: center;
-    }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-    #status {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-    }
-  </style>
+<style>
+  body {
+    font-family: system-ui, Arial, sans-serif;
+    background: #f2f4f7;
+    padding: 20px;
+    max-width: 480px;
+    margin: auto;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    display: block;
+    margin-top: 10px;
+  }
+
+  input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    font-size: 14px;
+  }
+
+  button {
+    border: none;
+    border-radius: 6px;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button.secondary {
+    background: #374151;
+  }
+
+  button:disabled {
+    opacity: 0.5;
+  }
+
+  #status {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 120px;
+    font-family: monospace;
+    font-size: 13px;
+    margin-top: 6px;
+  }
+</style>
 </head>
 
 <body>
-  <h2>BLE Text Sender</h2>
 
+<h2>🔧 IoT Node BLE Config</h2>
+
+<!-- ================= BLE ================= -->
+<div class="card">
   <button onclick="connectBLE()">🔗 Connect BLE</button>
-
-  <input
-    id="textInput"
-    type="text"
-    placeholder="Ketik text untuk ESP32"
-    disabled
-  />
-
-  <button onclick="sendText()" id="sendBtn" disabled>
-    📤 Kirim ke ESP
-  </button>
-
   <div id="status">Status: belum terkoneksi</div>
+</div>
+
+<!-- ================= RTC ================= -->
+<div class="card">
+  <h3>⏱ Set Timestamp</h3>
+
+  <label>Tanggal</label>
+  <input type="date" id="rtcDate" />
+
+  <label>Waktu</label>
+  <input type="time" id="rtcTime" step="1" />
+
+  <button onclick="sendRTC()" id="rtcBtn" disabled>
+    Apply Timestamp
+  </button>
+</div>
+
+<!-- ================= CONFIG ================= -->
+<div class="card">
+  <h3>💾 Device Config</h3>
+
+  <label>Config JSON</label>
+  <textarea id="configJson"></textarea>
+
+  <button onclick="sendConfig()" id="cfgBtn" disabled>
+    Save Config
+  </button>
+</div>
 
 <script>
-  const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-  const CHAR_UUID    = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+/* ================= BLE UUID ================= */
+const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+const CHAR_UUID    = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
-  let bleChar = null;
+/* ================= STATE ================= */
+let bleChar = null;
 
-  async function connectBLE() {
-    try {
-      const device = await navigator.bluetooth.requestDevice({
-        acceptAllDevices: true,
-        optionalServices: [SERVICE_UUID]
-      });
+/* ================= BLE CONNECT ================= */
+async function connectBLE() {
+  try {
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [SERVICE_UUID]
+    });
 
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(SERVICE_UUID);
-      bleChar = await service.getCharacteristic(CHAR_UUID);
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    bleChar = await service.getCharacteristic(CHAR_UUID);
 
-      document.getElementById("textInput").disabled = false;
-      document.getElementById("sendBtn").disabled = false;
-      document.getElementById("status").innerText =
-        "Status: connected to " + (device.name || "BLE Device");
-
-    } catch (err) {
-      alert("Gagal connect BLE: " + err);
-      console.error(err);
-    }
-  }
-
-  async function sendText() {
-    if (!bleChar) return;
-
-    const text = document.getElementById("textInput").value;
-    if (!text) return;
-
-    const encoder = new TextEncoder();
-    await bleChar.writeValue(encoder.encode(text));
+    document.getElementById("rtcBtn").disabled = false;
+    document.getElementById("cfgBtn").disabled = false;
 
     document.getElementById("status").innerText =
-      "Terkirim: " + text;
+      "Status: connected to " + (device.name || "BLE Device");
+
+    initRTCInputs();
+    loadDefaultConfig();
+
+  } catch (err) {
+    alert("BLE connect failed: " + err);
+    console.error(err);
   }
+}
+
+/* ================= SEND HELPER ================= */
+async function sendLine(text) {
+  if (!bleChar) return;
+  const enc = new TextEncoder();
+  await bleChar.writeValue(enc.encode(text));
+}
+
+/* ================= RTC ================= */
+function initRTCInputs() {
+  const now = new Date();
+  const pad = n => n.toString().padStart(2, "0");
+
+  document.getElementById("rtcDate").value =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+
+  document.getElementById("rtcTime").value =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
+async function sendRTC() {
+  const d = document.getElementById("rtcDate").value;
+  const t = document.getElementById("rtcTime").value;
+  if (!d || !t) return alert("Tanggal & waktu wajib diisi");
+
+  const epoch = Math.floor(new Date(`${d}T${t}`).getTime() / 1000);
+
+  await sendLine(`RTC,UNIX,${epoch}`);
+  alert("RTC sent via BLE");
+}
+
+/* ================= CONFIG ================= */
+function loadDefaultConfig() {
+  const example = {
+    device: { boxID: 1 },
+    network: { mode: "hybrid", priority: "wifi" },
+    transport: {
+      type: "tcp",
+      host: "mqtt.thingsboard.cloud",
+      port: 1883,
+      path: "/wsiot"
+    },
+    wifi: {
+      ssid: "Alaadiyaat",
+      password: "alaadiyaat25"
+    },
+    rules: []
+  };
+
+  document.getElementById("configJson").value =
+    JSON.stringify(example, null, 2);
+}
+
+async function sendConfig() {
+  const text = document.getElementById("configJson").value.trim();
+  if (!text) return alert("Config kosong");
+
+  try {
+    JSON.parse(text);
+  } catch {
+    return alert("JSON tidak valid");
+  }
+
+  await sendLine("CFG,BEGIN");
+  await sendLine("CFG,DATA," + text);
+  await sendLine("CFG,END");
+
+  alert("Config sent via BLE\nDevice will restart");
+}
 </script>
+
 </body>
 </html>
-
