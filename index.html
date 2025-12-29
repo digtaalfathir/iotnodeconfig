@@ -531,7 +531,6 @@ const SERVICE_UUID="4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 const CHAR_UUID="beb5483e-36e1-4688-b7f5-ea07361b26a8";
 const CHAR_UUID_RX="beb5483e-36e1-4688-b7f5-ea07361b26a8";
 const CHAR_UUID_TX="beb5483e-36e1-4688-b7f5-ea07361b26a9";
-let bleChar=null;
 let bleRxChar = null;
 let bleTxChar = null;
 
@@ -546,10 +545,10 @@ async function connectBLE() {
   const server = await device.gatt.connect();
   const service = await server.getPrimaryService(SERVICE_UUID);
 
-  // RX (WRITE)
+  // RX = WRITE
   bleRxChar = await service.getCharacteristic(CHAR_UUID_RX);
 
-  // TX (NOTIFY)
+  // TX = NOTIFY
   bleTxChar = await service.getCharacteristic(CHAR_UUID_TX);
 
   bleTxChar.addEventListener(
@@ -559,7 +558,8 @@ async function connectBLE() {
 
   await bleTxChar.startNotifications();
 
-  console.log("BLE connected & notifications ready");
+  console.log("BLE connected");
+  alert("BLE connected");
 }
 
 function onBleMessage(event) {
@@ -582,7 +582,6 @@ async function bleSend(txt){
     new TextEncoder().encode(txt)
   );
 }
-
 
 /* ================= RULES ================= */
 /* ================== RULES ENGINE ================== */
@@ -939,14 +938,15 @@ function parseRulesArray(arr) {
   });
 }
 
-async function getConfig() {
-  if (!bleChar) {
+async function bleSend(txt){
+  if (!bleRxChar) {
     alert("BLE not connected");
     return;
   }
 
-  console.log("Requesting config from device...");
-  await bleSend("CMD:GET_CONFIG");
+  await bleRxChar.writeValue(
+    new TextEncoder().encode(txt)
+  );
 }
 
 /* INIT */
