@@ -529,9 +529,11 @@
 /* ================= BLE ================= */
 const SERVICE_UUID="4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 const CHAR_UUID="beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const CHAR_UUID_RX="beb5483e-36e1-4688-b7f5-ea07361b26a8";
+const CHAR_UUID_TX="beb5483e-36e1-4688-b7f5-ea07361b26a9";
 let bleChar=null;
 
-async function connectBLE(){
+async function connectBLE() {
   const device = await navigator.bluetooth.requestDevice({
     acceptAllDevices: true,
     optionalServices: [SERVICE_UUID]
@@ -541,30 +543,28 @@ async function connectBLE(){
   const service = await server.getPrimaryService(SERVICE_UUID);
   bleChar = await service.getCharacteristic(CHAR_UUID);
 
-  await bleChar.startNotifications();
+  // ✅ 1. PASANG LISTENER DULU
   bleChar.addEventListener(
     "characteristicvaluechanged",
     onBleMessage
   );
 
-  console.log("BLE connected, ready.");
+  // ✅ 2. BARU START NOTIFY
+  await bleChar.startNotifications();
+
   alert("BLE connected");
 }
 
 function onBleMessage(event) {
   const value = new TextDecoder().decode(event.target.value);
+  console.log("[BLE RX]", value);
 
   if (value.startsWith("CFG:")) {
     const json = value.substring(4);
-    try {
-      const cfg = JSON.parse(json);
-      applyConfigToUI(cfg);
-    } catch (e) {
-      console.error("Invalid config JSON", e);
-    }
+    const cfg = JSON.parse(json);
+    applyConfigToUI(cfg);
   }
 }
-
 
 async function bleSend(txt){
   if(!bleChar) return alert("BLE not connected");
