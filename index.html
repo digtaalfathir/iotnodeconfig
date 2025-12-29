@@ -386,7 +386,7 @@
 
   <div style="display:flex; gap:10px;">
     <button class="btn btn-primary" onclick="connectBLE()">Connect BLE</button>
-    <!-- <button class="btn" onclick="getConfig()">Get Config</button> -->
+    <button class="btn" onclick="buildConfig()">Get Config</button>
   </div>
 </header>
 
@@ -758,7 +758,7 @@ function toggleInput(q,k){
 }
 
 /* ================= CONFIG ================= */
-function getConfig(){
+function buildConfig(){
   return {
     device:{boxID:+boxID.value||0},
     network:{
@@ -782,7 +782,7 @@ function getConfig(){
 }
 
 async function saveConfig(){
-  await bleSend("CMD:CONFIG:"+JSON.stringify(getConfig()));
+  await bleSend("CMD:CONFIG:"+JSON.stringify(buildConfig()));
   alert("Config sent via BLE");
 }
 
