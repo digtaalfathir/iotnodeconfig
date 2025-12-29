@@ -385,8 +385,8 @@
   </div>
 
   <div style="display:flex; gap:10px;">
-    <button class="btn btn-primary" onclick="connectBLE()">🔗 Connect BLE</button>
-    <button class="btn" onclick="getConfig()">📥 Get Config</button>
+    <button class="btn btn-primary" onclick="connectBLE()">Connect BLE</button>
+    <button class="btn" onclick="getConfig()">Get Config</button>
   </div>
 </header>
 
@@ -864,8 +864,6 @@ function enforceCommNetworkRule() {
     ethOpt.disabled = false;
     hybOpt.disabled = false;
   }
-
-  updateDirtyState();
 }
 
 function initRTCInput() {
