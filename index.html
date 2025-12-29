@@ -4,72 +4,376 @@
 <meta charset="utf-8" />
 <title>IoT-Node BLE Configuration</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-
 <style>
-:root {
-  --bg:#f2f4f7; --card:#fff; --border:#d0d7de;
-  --primary:#2563eb; --success:#16a34a;
-  --warning:#f59e0b; --danger:#dc2626;
-  --text:#111827; --muted:#6b7280;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-header{
-  background:linear-gradient(135deg,#0f172a,#1e293b);
-  color:#e5e7eb;padding:18px 24px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-header .title{font-size:18px;font-weight:600}
-header .subtitle{font-size:12px;color:#9ca3af}
-.container{max-width:1100px;margin:24px auto;padding:0 16px}
-.card{
-  background:var(--card);border:1px solid var(--border);
-  border-radius:10px;padding:20px;margin-bottom:20px;
-}
-.card h3{margin-top:0;display:flex;gap:8px}
-.card h3::before{content:"▌";color:var(--primary)}
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:16px;
-}
-label{font-size:13px;font-weight:600;color:var(--muted)}
-input,select{
-  width:100%;padding:10px;border-radius:6px;
-  border:1px solid var(--border);font-size:14px;
-}
-.btn{padding:10px 14px;border-radius:6px;font-weight:600;border:none;cursor:pointer}
-.btn-primary{background:var(--primary);color:#fff}
-.action-panel{
-  position:sticky;bottom:0;
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:14px;padding:16px;background:#f8fafc;
-  border-top:1px solid var(--border);
-}
-.action-btn{
-  height:52px;border-radius:8px;font-size:15px;
-  font-weight:600;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.action-btn.primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
-.action-btn.secondary{background:#374151;color:#fff}
-.rule-card{
-  background:#f8fafc;border:1px solid var(--border);
-  border-radius:8px;padding:16px;margin-bottom:12px;
-}
-.input-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));
-  gap:6px;margin-top:8px;
-}
-.input-checkbox{
-  padding:6px 8px;border:1px solid var(--border);
-  border-radius:4px;cursor:pointer;font-size:13px;
-}
-.input-checkbox.checked{background:var(--primary);color:#fff}
-footer{text-align:center;font-size:12px;color:var(--muted);margin:20px}
-</style>
+    :root {
+      --bg: #f2f4f7;
+      --card: #ffffff;
+      --border: #d0d7de;
+      --primary: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --text: #111827;
+      --muted: #6b7280;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #e5e7eb;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header .title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    header .subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .card h3::before {
+      content: "▌";
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      color: var(--muted);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      background: #fff;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    input::placeholder {
+      color: #9ca3af;
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ================== RULES SECTION ================== */
+    .rule-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .rule-card.disabled {
+      opacity: 0.5;
+      background: #f1f5f9;
+    }
+
+    .rule-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .rule-output {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      min-width: 40px;
+    }
+
+    .rule-logic-select {
+      width: 100px;
+      padding: 8px 12px;
+      font-weight: 600;
+    }
+
+    .rule-logic-select.logic-or {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .rule-logic-select.logic-and {
+      border-color: var(--primary);
+      background: #eff6ff;
+    }
+
+    .rule-logic-select.logic-not {
+      border-color: var(--warning);
+      background: #fffbeb;
+    }
+
+    .rule-logic-select.logic-off {
+      border-color: var(--border);
+      background: #f9fafb;
+    }
+
+    .logic-description {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .input-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+    }
+
+    .input-checkbox:hover {
+      border-color: var(--primary);
+    }
+
+    .input-checkbox.checked {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .input-checkbox.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .input-checkbox input {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .rule-warning {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #92400e;
+    }
+
+    .rule-summary {
+      margin-top: 10px;
+      padding: 8px 12px;
+      background: #e0f2fe;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #0369a1;
+      font-family: monospace;
+    }
+
+    /* ================== ACTION PANEL ================== */
+    .action-panel {
+      position: sticky;
+      bottom: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 24px;
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .action-btn {
+      height: 52px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #fff;
+    }
+
+    .action-btn.secondary {
+      background: #374151;
+      color: #fff;
+    }
+
+    .action-btn:hover {
+      opacity: 0.92;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ================== MODAL ================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+    }
+
+    .modal-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .modal-box h3 {
+      margin-top: 0;
+    }
+
+    .modal-box button {
+      margin-top: 16px;
+    }
+
+    #unsavedBadge {
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 30px;
+      padding-bottom: 10px;
+    }
+
+    /* ================== LEGEND ================== */
+    .logic-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .legend-badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 11px;
+    }
+
+    .legend-badge.or { background: #dcfce7; color: #166534; }
+    .legend-badge.and { background: #dbeafe; color: #1e40af; }
+    .legend-badge.not { background: #fef3c7; color: #92400e; }
+  </style>
 </head>
 
 <body>
@@ -114,66 +418,95 @@ footer{text-align:center;font-size:12px;color:var(--muted);margin:20px}
 
 <!-- NETWORK -->
 <div class="card">
-<h3>Network Configuration</h3>
-<div class="grid">
-  <div>
-    <label>Network Mode</label>
-    <select id="networkMode">
-      <option value="wifi">WiFi</option>
-      <option value="ethernet">Ethernet</option>
-      <option value="hybrid">Hybrid</option>
-    </select>
-  </div>
-  <div>
-    <label>Priority</label>
-    <select id="networkPriority">
-      <option value="ethernet">Ethernet</option>
-      <option value="wifi">WiFi</option>
-    </select>
-  </div>
-  <div>
-    <label>WiFi SSID</label>
-    <input type="text" id="wifiSSID">
-  </div>
-  <div>
-    <label>WiFi Password</label>
-    <input type="password" id="wifiPassword">
+  <h3>Network Configuration</h3>
+
+  <div class="grid">
+    <div>
+      <label>Network Mode</label>
+      <select id="networkMode" onchange="onNetworkModeChange()">
+        <option value="wifi">WiFi Only</option>
+        <option value="ethernet">Ethernet Only</option>
+        <option value="hybrid">Hybrid (WiFi + Ethernet)</option>
+      </select>
+    </div>
+
+    <div id="priorityWrapper" style="display:none;">
+      <label>Primary Network</label>
+      <select id="networkPriority">
+        <option value="ethernet">Ethernet</option>
+        <option value="wifi">WiFi</option>
+      </select>
+    </div>
+
+    <div id="wifiSSIDWrapper" style="display:none;">
+      <label>WiFi SSID</label>
+      <input type="text" id="wifiSSID">
+    </div>
+
+    <div id="wifiPasswordWrapper" style="display:none;">
+      <label>WiFi Password</label>
+      <div style="display:flex; gap:6px;">
+        <input type="password" id="wifiPassword" style="flex:1;">
+        <button class="btn" type="button" onclick="togglePassword()">👁</button>
+      </div>
+    </div>
   </div>
 </div>
-</div>
+
 
 <!-- TRANSPORT -->
 <div class="card">
-<h3>Transport Configuration</h3>
-<div class="grid">
-  <div>
-    <label>Protocol</label>
-    <select id="commMode">
-      <option value="mqtt">MQTT</option>
-      <option value="tcp">TCP</option>
-      <option value="httppost">HTTP POST</option>
-      <option value="ws">WebSocket</option>
-    </select>
+  <h3>Transport Configuration</h3>
+  <div class="grid">
+    <div>
+      <label>Protocol</label>
+      <select id="commMode" onchange="enforceCommNetworkRule()">
+        <option value="mqtt">MQTT</option>
+        <option value="httppost">HTTP POST</option>
+        <option value="tcp">TCP</option>
+        <option value="ws">WebSocket</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Server Host</label>
+      <input type="text" id="serverIP">
+    </div>
+
+    <div>
+      <label>Port</label>
+      <input type="number" id="monitoringPort">
+    </div>
+
+    <div>
+      <label>Path</label>
+      <input type="text" id="serverPath">
+    </div>
   </div>
-  <div>
-    <label>Host</label>
-    <input type="text" id="serverIP">
-  </div>
-  <div>
-    <label>Port</label>
-    <input type="number" id="monitoringPort">
-  </div>
-  <div>
-    <label>Path</label>
-    <input type="text" id="serverPath">
-  </div>
-</div>
 </div>
 
 <!-- RULES -->
 <div class="card">
-<h3>Output Rules</h3>
-<div id="rulesContainer"></div>
+  <h3>Output Rules (Logic Gates)</h3>
+  
+  <div class="logic-legend">
+    <div class="legend-item">
+      <span class="legend-badge or">OR</span>
+      <span>Output ON if <strong>ANY</strong> input is ON</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge and">AND</span>
+      <span>Output ON if <strong>ALL</strong> inputs are ON</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-badge not">NOT</span>
+      <span>Output ON if input is <strong>OFF</strong> (1 input only)</span>
+    </div>
+  </div>
+
+  <div id="rulesContainer">
+    <!-- Generated by JavaScript -->
+  </div>
 </div>
 
 <div class="action-panel">
@@ -206,38 +539,170 @@ async function bleSend(txt){
 }
 
 /* ================= RULES ================= */
-const NUM_INPUTS=15, NUM_OUTPUTS=4;
-let outputRules={};
-function initRules(){
-  for(let q=1;q<=NUM_OUTPUTS;q++)
-    outputRules["Q"+q]={logic:"OFF",inputs:[]};
+/* ================== RULES ENGINE ================== */
+const NUM_INPUTS = 15;
+const NUM_OUTPUTS = 4;
+
+/*
+outputRules = {
+  Q1: { logic: "OR", inputs: ["I1","I2"] },
+  Q2: { logic: "OFF", inputs: [] },
 }
-function renderRules(){
-  const c=document.getElementById("rulesContainer");
-  c.innerHTML="";
-  for(let q=1;q<=NUM_OUTPUTS;q++){
-    const r=outputRules["Q"+q];
-    const div=document.createElement("div");
-    div.className="rule-card";
-    div.innerHTML=`<b>Q${q}</b>
-      <select onchange="setLogic(${q},this.value)">
-        <option ${r.logic=="OFF"?"selected":""}>OFF</option>
-        <option ${r.logic=="OR"?"selected":""}>OR</option>
-        <option ${r.logic=="AND"?"selected":""}>AND</option>
-        <option ${r.logic=="NOT"?"selected":""}>NOT</option>
-      </select>
-      <div class="input-grid">
-        ${[...Array(NUM_INPUTS)].map((_,i)=>{
-          const k="I"+(i+1);
-          const ck=r.inputs.includes(k)?"checked":"";
-          return `<label class="input-checkbox ${ck}">
-          <input type="checkbox" ${ck}
-          onchange="toggleInput(${q},'${k}')">${k}</label>`;
-        }).join("")}
-      </div>`;
-    c.appendChild(div);
+*/
+let outputRules = {};
+
+/* ---------- INIT ---------- */
+function initRules() {
+  for (let q = 1; q <= NUM_OUTPUTS; q++) {
+    outputRules["Q" + q] = {
+      logic: "OFF",
+      inputs: []
+    };
   }
 }
+
+/* ---------- RENDER ---------- */
+function renderRules() {
+  const container = document.getElementById("rulesContainer");
+  container.innerHTML = "";
+
+  for (let q = 1; q <= NUM_OUTPUTS; q++) {
+    const qKey = "Q" + q;
+    const rule = outputRules[qKey];
+
+    const card = document.createElement("div");
+    card.className = "rule-card" + (rule.logic === "OFF" ? " disabled" : "");
+    card.id = "ruleCard" + q;
+
+    /* ===== HEADER ===== */
+    let headerHtml = `
+      <div class="rule-header">
+        <span class="rule-output">${qKey}</span>
+
+        <select
+          id="logic${q}"
+          class="rule-logic-select logic-${rule.logic.toLowerCase()}"
+          onchange="onLogicChange(${q})">
+
+          <option value="OFF" ${rule.logic === "OFF" ? "selected" : ""}>OFF</option>
+          <option value="OR"  ${rule.logic === "OR"  ? "selected" : ""}>OR</option>
+          <option value="AND" ${rule.logic === "AND" ? "selected" : ""}>AND</option>
+          <option value="NOT" ${rule.logic === "NOT" ? "selected" : ""}>NOT</option>
+        </select>
+
+        <span class="logic-description">
+          ${getLogicDescription(rule.logic)}
+        </span>
+      </div>
+    `;
+
+    /* ===== INPUT GRID ===== */
+    let inputsHtml = `<div class="input-grid">`;
+
+    for (let i = 1; i <= NUM_INPUTS; i++) {
+      const iKey = "I" + i;
+      const checked = rule.inputs.includes(iKey);
+      const disabled =
+        rule.logic === "OFF" ||
+        (rule.logic === "NOT" && rule.inputs.length >= 1 && !checked);
+
+      inputsHtml += `
+        <label class="input-checkbox
+          ${checked ? "checked" : ""}
+          ${disabled ? "disabled" : ""}">
+
+          <input type="checkbox"
+            ${checked ? "checked" : ""}
+            ${disabled ? "disabled" : ""}
+            onchange="onInputToggle(${q}, ${i})">
+
+          ${iKey}
+        </label>
+      `;
+    }
+    inputsHtml += `</div>`;
+
+    /* ===== NOT WARNING ===== */
+    let warningHtml = "";
+    if (rule.logic === "NOT") {
+      warningHtml = `
+        <div class="rule-warning">
+          ⚠️ NOT logic allows only 1 input. Output will be ON when selected input is OFF.
+        </div>
+      `;
+    }
+
+    /* ===== SUMMARY ===== */
+    let summaryHtml = "";
+    if (rule.logic !== "OFF" && rule.inputs.length > 0) {
+      summaryHtml = `
+        <div class="rule-summary">
+          📋 ${qKey} = ${formatRuleSummary(rule)}
+        </div>
+      `;
+    }
+
+    card.innerHTML = headerHtml + inputsHtml + warningHtml + summaryHtml;
+    container.appendChild(card);
+  }
+}
+
+/* ---------- HANDLERS ---------- */
+function onLogicChange(q) {
+  const qKey = "Q" + q;
+  const select = document.getElementById("logic" + q);
+  const newLogic = select.value;
+
+  if (newLogic === "OFF") {
+    outputRules[qKey].inputs = [];
+  }
+
+  if (newLogic === "NOT" && outputRules[qKey].inputs.length > 1) {
+    outputRules[qKey].inputs = [outputRules[qKey].inputs[0]];
+  }
+
+  outputRules[qKey].logic = newLogic;
+  renderRules();
+}
+
+function onInputToggle(q, i) {
+  const qKey = "Q" + q;
+  const iKey = "I" + i;
+  const rule = outputRules[qKey];
+
+  if (rule.logic === "OFF") return;
+
+  if (rule.inputs.includes(iKey)) {
+    rule.inputs = rule.inputs.filter(x => x !== iKey);
+  } else {
+    if (rule.logic === "NOT") {
+      rule.inputs = [iKey];
+    } else {
+      rule.inputs.push(iKey);
+    }
+  }
+
+  rule.inputs.sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+  renderRules();
+}
+
+/* ---------- HELPERS ---------- */
+function getLogicDescription(logic) {
+  switch (logic) {
+    case "OR":  return "ON if any selected input is ON";
+    case "AND": return "ON if all selected inputs are ON";
+    case "NOT": return "ON if selected input is OFF";
+    default:    return "Output disabled";
+  }
+}
+
+function formatRuleSummary(rule) {
+  if (rule.logic === "NOT") {
+    return `NOT(${rule.inputs[0]})`;
+  }
+  return rule.inputs.join(` ${rule.logic} `);
+}
+
 function setLogic(q,v){outputRules["Q"+q].logic=v;renderRules()}
 function toggleInput(q,k){
   const r=outputRules["Q"+q];
@@ -288,8 +753,71 @@ function downloadConfig(){
   a.download="config.json";a.click();
 }
 
+function onNetworkModeChange() {
+  const mode = document.getElementById("networkMode").value;
+
+  const priority = document.getElementById("priorityWrapper");
+  const ssid = document.getElementById("wifiSSIDWrapper");
+  const pwd = document.getElementById("wifiPasswordWrapper");
+
+  // Reset semua
+  priority.style.display = "none";
+  ssid.style.display = "none";
+  pwd.style.display = "none";
+
+  if (mode === "wifi") {
+    // WiFi Only
+    ssid.style.display = "block";
+    pwd.style.display = "block";
+  }
+  else if (mode === "hybrid") {
+    // Hybrid
+    priority.style.display = "block";
+    ssid.style.display = "block";
+    pwd.style.display = "block";
+  }
+  // ethernet only → semua hidden
+}
+
+function togglePassword() {
+  const pwdInput = document.getElementById("wifiPassword");
+  if (pwdInput.type === "password") {
+    pwdInput.type = "text";
+  } else {
+    pwdInput.type = "password";
+  }
+}
+
+function enforceCommNetworkRule() {
+  const commMode = document.getElementById("commMode").value;
+  const networkMode = document.getElementById("networkMode");
+
+  const wifiOpt = networkMode.querySelector('option[value="wifi"]');
+  const ethOpt  = networkMode.querySelector('option[value="ethernet"]');
+  const hybOpt  = networkMode.querySelector('option[value="hybrid"]');
+
+  if (commMode === "ws") {
+    // ===== WebSocket → WiFi ONLY =====
+    networkMode.value = "wifi";
+
+    ethOpt.disabled = true;
+    hybOpt.disabled = true;
+
+    // pastikan UI network update
+    onNetworkModeChange();
+  } else {
+    // ===== Protocol lain → semua mode boleh =====
+    ethOpt.disabled = false;
+    hybOpt.disabled = false;
+  }
+
+  updateDirtyState();
+}
+
 /* INIT */
 initRules();renderRules();
+onNetworkModeChange();
+enforceCommNetworkRule();
 </script>
 </body>
 </html>
