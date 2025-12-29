@@ -532,6 +532,8 @@ const CHAR_UUID="beb5483e-36e1-4688-b7f5-ea07361b26a8";
 const CHAR_UUID_RX="beb5483e-36e1-4688-b7f5-ea07361b26a8";
 const CHAR_UUID_TX="beb5483e-36e1-4688-b7f5-ea07361b26a9";
 let bleChar=null;
+let bleRxChar = null;
+let bleTxChar = null;
 
 async function connectBLE() {
   console.log("Connecting BLE...");
@@ -543,20 +545,22 @@ async function connectBLE() {
 
   const server = await device.gatt.connect();
   const service = await server.getPrimaryService(SERVICE_UUID);
-  bleChar = await service.getCharacteristic(CHAR_UUID);
 
-  // 1️⃣ PASANG LISTENER DULU
-  bleChar.addEventListener(
+  // RX (WRITE)
+  bleRxChar = await service.getCharacteristic(CHAR_UUID_RX);
+
+  // TX (NOTIFY)
+  bleTxChar = await service.getCharacteristic(CHAR_UUID_TX);
+
+  bleTxChar.addEventListener(
     "characteristicvaluechanged",
     onBleMessage
   );
 
-  // 2️⃣ BARU AKTIFKAN NOTIFY
-  await bleChar.startNotifications();
+  await bleTxChar.startNotifications();
 
-  console.log("BLE connected & notifications enabled");
+  console.log("BLE connected & notifications ready");
 }
-
 
 function onBleMessage(event) {
   const value = new TextDecoder().decode(event.target.value);
@@ -570,9 +574,15 @@ function onBleMessage(event) {
 }
 
 async function bleSend(txt){
-  if(!bleChar) return alert("BLE not connected");
-  await bleChar.writeValue(new TextEncoder().encode(txt));
+  if(!bleRxChar) {
+    alert("BLE not connected");
+    return;
+  }
+  await bleRxChar.writeValue(
+    new TextEncoder().encode(txt)
+  );
 }
+
 
 /* ================= RULES ================= */
 /* ================== RULES ENGINE ================== */
