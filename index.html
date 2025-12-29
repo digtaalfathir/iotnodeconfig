@@ -401,20 +401,23 @@
 
 <!-- RTC -->
 <div class="card">
-<h3>Timestamp</h3>
-<div class="grid">
-  <div>
-    <label>Date</label>
-    <input type="date" id="rtcDate">
+  <h3>Timestamp</h3>
+
+  <div class="grid">
+    <div>
+      <label>Date & Time</label>
+      <input type="datetime-local" id="rtcDatetime">
+    </div>
   </div>
-  <div>
-    <label>Time</label>
-    <input type="time" id="rtcTime" step="1">
+
+  <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+    <button class="btn btn-primary" type="button" onclick="applyRTC()">
+      ⏱ Apply Timestamp
+    </button>
+    <span id="rtcStatus" class="logic-description"></span>
   </div>
 </div>
-<button class="btn btn-primary" style="margin-top:12px" onclick="applyRTC()">⏱ Apply Timestamp</button>
-<span id="rtcStatus"></span>
-</div>
+
 
 <!-- NETWORK -->
 <div class="card">
@@ -740,10 +743,31 @@ async function saveConfig(){
   alert("Config sent via BLE");
 }
 
-async function applyRTC(){
-  if(!rtcDate.value||!rtcTime.value) return;
-  await bleSend(`CMD:RTC:${rtcDate.value} ${rtcTime.value}`);
-  rtcStatus.textContent="RTC sent via BLE";
+async function applyRTC() {
+  const input = document.getElementById("rtcDatetime");
+  const status = document.getElementById("rtcStatus");
+
+  if (!input.value) {
+    status.textContent = "Please select date & time";
+    status.style.color = "#dc2626";
+    return;
+  }
+
+  // ubah "2025-05-20T12:34:56" → "2025-05-20 12:34:56"
+  const datetime = input.value.replace("T", " ");
+
+  status.textContent = "Sending timestamp...";
+  status.style.color = "#6b7280";
+
+  try {
+    await bleSend(`CMD:RTC:${datetime}`);
+
+    status.textContent = "Timestamp sent successfully";
+    status.style.color = "#16a34a";
+  } catch (e) {
+    status.textContent = "Failed to send timestamp";
+    status.style.color = "#dc2626";
+  }
 }
 
 function downloadConfig(){
@@ -814,10 +838,33 @@ function enforceCommNetworkRule() {
   updateDirtyState();
 }
 
+function initRTCInput() {
+  const input = document.getElementById("rtcDatetime");
+  if (!input) return;
+
+  const now = new Date();
+
+  // format → YYYY-MM-DDTHH:MM:SS (required by datetime-local)
+  const pad = n => n.toString().padStart(2, "0");
+
+  const value =
+    now.getFullYear() + "-" +
+    pad(now.getMonth() + 1) + "-" +
+    pad(now.getDate()) + "T" +
+    pad(now.getHours()) + ":" +
+    pad(now.getMinutes()) + ":" +
+    pad(now.getSeconds());
+
+  input.value = value;
+}
+
+
 /* INIT */
-initRules();renderRules();
+initRules();
+renderRules();
 onNetworkModeChange();
 enforceCommNetworkRule();
+initRTCInput();
 </script>
 </body>
 </html>
