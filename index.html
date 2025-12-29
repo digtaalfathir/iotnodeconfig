@@ -385,8 +385,14 @@
   </div>
 
   <div style="display:flex; gap:10px;">
-    <button class="btn btn-primary" onclick="connectBLE()">Connect BLE</button>
-    <button class="btn" onclick="buildConfig()">Get Config</button>
+    <button id="btnConnect" class="btn btn-primary" onclick="connectBLE()">
+      Connect BLE
+    </button>
+
+    <span id="bleStatus" style="font-size:13px;color:#9ca3af;">
+      ● Disconnected
+    </span>
+
   </div>
 </header>
 
@@ -518,8 +524,9 @@
 </div>
 
 <div class="action-panel">
-<button class="action-btn primary" onclick="saveConfig()">💾 Save Config</button>
-<!-- <button class="action-btn secondary" onclick="downloadConfig()">📥 Download JSON</button> -->
+  <button class="action-btn primary" onclick="saveConfig()">
+    💾 Save Configuration
+  </button>
 </div>
 
 <footer>BLE Config Panel • IoT Node</footer>
@@ -535,33 +542,36 @@ let bleRxChar = null;
 let bleTxChar = null;
 
 async function connectBLE() {
-  console.log("Connecting BLE...");
+  try {
+    btnConnect.disabled = true;
+    bleStatus.textContent = "● Connecting...";
+    bleStatus.style.color = "#f59e0b";
 
-  const device = await navigator.bluetooth.requestDevice({
-    acceptAllDevices: true,
-    optionalServices: [SERVICE_UUID]
-  });
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [SERVICE_UUID]
+    });
 
-  const server = await device.gatt.connect();
-  const service = await server.getPrimaryService(SERVICE_UUID);
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
 
-  // RX = WRITE
-  bleRxChar = await service.getCharacteristic(CHAR_UUID_RX);
+    bleRxChar = await service.getCharacteristic(CHAR_UUID_RX);
+    bleTxChar = await service.getCharacteristic(CHAR_UUID_TX);
 
-  // TX = NOTIFY
-  bleTxChar = await service.getCharacteristic(CHAR_UUID_TX);
+    bleTxChar.addEventListener("characteristicvaluechanged", onBleMessage);
+    await bleTxChar.startNotifications();
 
-  bleTxChar.addEventListener(
-    "characteristicvaluechanged",
-    onBleMessage
-  );
+    setBleStatus(true);
 
-  await bleTxChar.startNotifications();
+    getConfig();
 
-  console.log("BLE connected");
-  alert("BLE connected");
-  getConfig();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to connect BLE");
+    setBleStatus(false);
+  }
 }
+
 
 function onBleMessage(event) {
   const value = new TextDecoder().decode(event.target.value);
@@ -782,8 +792,27 @@ function buildConfig(){
 }
 
 async function saveConfig(){
-  await bleSend("CMD:CONFIG:"+JSON.stringify(buildConfig()));
-  alert("Config sent via BLE");
+  if (!bleRxChar) {
+    alert("BLE not connected");
+    return;
+  }
+
+  const btn = document.querySelector(".action-btn.primary");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Saving...`;
+
+  try {
+    await bleSend("CMD:CONFIG:" + JSON.stringify(buildConfig()));
+    btn.innerHTML = "✅ Saved";
+    setTimeout(() => {
+      btn.innerHTML = "💾 Save Config";
+      btn.disabled = false;
+    }, 1200);
+  } catch (e) {
+    alert("Failed to send config");
+    btn.innerHTML = "💾 Save Config";
+    btn.disabled = false;
+  }
 }
 
 async function applyRTC() {
@@ -947,6 +976,21 @@ async function getConfig() {
 
   console.log("Requesting config from device...");
   await bleSend("CMD:GET_CONFIG");
+}
+
+const bleStatus = document.getElementById("bleStatus");
+const btnConnect = document.getElementById("btnConnect");
+
+function setBleStatus(connected) {
+  if (connected) {
+    bleStatus.textContent = "● Connected";
+    bleStatus.style.color = "#16a34a";
+    btnConnect.disabled = true;
+  } else {
+    bleStatus.textContent = "● Disconnected";
+    bleStatus.style.color = "#dc2626";
+    btnConnect.disabled = false;
+  }
 }
 
 /* INIT */
