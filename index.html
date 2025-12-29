@@ -528,20 +528,24 @@ let bleChar=null;
 
 async function connectBLE(){
   const device = await navigator.bluetooth.requestDevice({
-    acceptAllDevices:true,
-    optionalServices:[SERVICE_UUID]
+    acceptAllDevices: true,
+    optionalServices: [SERVICE_UUID]
   });
 
   const server = await device.gatt.connect();
   const service = await server.getPrimaryService(SERVICE_UUID);
   bleChar = await service.getCharacteristic(CHAR_UUID);
 
-  // 👇 LISTEN DATA DARI ESP
+  // enable notify
   await bleChar.startNotifications();
   bleChar.addEventListener("characteristicvaluechanged", onBleMessage);
 
-  // 👇 MINTA CONFIG
-  await bleSend("CMD:GET_CONFIG");
+  console.log("BLE connected, waiting before GET_CONFIG...");
+
+  setTimeout(async () => {
+    console.log("Sending CMD:GET_CONFIG");
+    await bleSend("CMD:GET_CONFIG");
+  }, 300);
 
   alert("BLE connected");
 }
