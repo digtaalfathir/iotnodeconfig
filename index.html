@@ -527,14 +527,39 @@ const CHAR_UUID="beb5483e-36e1-4688-b7f5-ea07361b26a8";
 let bleChar=null;
 
 async function connectBLE(){
-  const device=await navigator.bluetooth.requestDevice({
-    acceptAllDevices:true,optionalServices:[SERVICE_UUID]
+  const device = await navigator.bluetooth.requestDevice({
+    acceptAllDevices:true,
+    optionalServices:[SERVICE_UUID]
   });
-  const server=await device.gatt.connect();
-  const service=await server.getPrimaryService(SERVICE_UUID);
-  bleChar=await service.getCharacteristic(CHAR_UUID);
+
+  const server = await device.gatt.connect();
+  const service = await server.getPrimaryService(SERVICE_UUID);
+  bleChar = await service.getCharacteristic(CHAR_UUID);
+
+  // 👇 LISTEN DATA DARI ESP
+  await bleChar.startNotifications();
+  bleChar.addEventListener("characteristicvaluechanged", onBleMessage);
+
+  // 👇 MINTA CONFIG
+  await bleSend("CMD:GET_CONFIG");
+
   alert("BLE connected");
 }
+
+function onBleMessage(event) {
+  const value = new TextDecoder().decode(event.target.value);
+
+  if (value.startsWith("CFG:")) {
+    const json = value.substring(4);
+    try {
+      const cfg = JSON.parse(json);
+      applyConfigToUI(cfg);
+    } catch (e) {
+      console.error("Invalid config JSON", e);
+    }
+  }
+}
+
 
 async function bleSend(txt){
   if(!bleChar) return alert("BLE not connected");
@@ -858,6 +883,45 @@ function initRTCInput() {
   input.value = value;
 }
 
+function applyConfigToUI(cfg) {
+  // BASIC
+  boxID.value = cfg.device?.boxID ?? "";
+
+  // NETWORK
+  networkMode.value = cfg.network?.mode ?? "wifi";
+  networkPriority.value = cfg.network?.priority ?? "ethernet";
+  onNetworkModeChange();
+
+  // WIFI
+  wifiSSID.value = cfg.wifi?.ssid ?? "";
+  wifiPassword.value = cfg.wifi?.password ?? "";
+
+  // TRANSPORT
+  commMode.value = cfg.transport?.type ?? "mqtt";
+  serverIP.value = cfg.transport?.host ?? "";
+  monitoringPort.value = cfg.transport?.port ?? "";
+  serverPath.value = cfg.transport?.path ?? "";
+
+  enforceCommNetworkRule();
+
+  // RULES
+  parseRulesArray(cfg.rules);
+  renderRules();
+
+  console.log("Config loaded from device");
+}
+
+function parseRulesArray(arr) {
+  initRules();
+  if (!Array.isArray(arr)) return;
+
+  arr.forEach(str => {
+    const [q, logic, inputs] = str.split(":");
+    if (!outputRules[q]) return;
+    outputRules[q].logic = logic;
+    outputRules[q].inputs = inputs ? inputs.split(",") : [];
+  });
+}
 
 /* INIT */
 initRules();
