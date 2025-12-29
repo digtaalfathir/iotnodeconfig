@@ -938,15 +938,14 @@ function parseRulesArray(arr) {
   });
 }
 
-async function bleSend(txt){
+async function getConfig() {
   if (!bleRxChar) {
     alert("BLE not connected");
     return;
   }
 
-  await bleRxChar.writeValue(
-    new TextEncoder().encode(txt)
-  );
+  console.log("Requesting config from device...");
+  await bleSend("CMD:GET_CONFIG");
 }
 
 /* INIT */
