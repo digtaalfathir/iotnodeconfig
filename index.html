@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>BLE Simple Sender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      background: #f5f5f5;
+    }
+    h2 {
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    #status {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>BLE Text Sender</h2>
+
+  <button onclick="connectBLE()">🔗 Connect BLE</button>
+
+  <input
+    id="textInput"
+    type="text"
+    placeholder="Ketik text untuk ESP32"
+    disabled
+  />
+
+  <button onclick="sendText()" id="sendBtn" disabled>
+    📤 Kirim ke ESP
+  </button>
+
+  <div id="status">Status: belum terkoneksi</div>
+
+<script>
+  const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+  const CHAR_UUID    = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+  let bleChar = null;
+
+  async function connectBLE() {
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+        optionalServices: [SERVICE_UUID]
+      });
+
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      bleChar = await service.getCharacteristic(CHAR_UUID);
+
+      document.getElementById("textInput").disabled = false;
+      document.getElementById("sendBtn").disabled = false;
+      document.getElementById("status").innerText =
+        "Status: connected to " + (device.name || "BLE Device");
+
+    } catch (err) {
+      alert("Gagal connect BLE: " + err);
+      console.error(err);
+    }
+  }
+
+  async function sendText() {
+    if (!bleChar) return;
+
+    const text = document.getElementById("textInput").value;
+    if (!text) return;
+
+    const encoder = new TextEncoder();
+    await bleChar.writeValue(encoder.encode(text));
+
+    document.getElementById("status").innerText =
+      "Terkirim: " + text;
+  }
+</script>
+</body>
+</html>
+
