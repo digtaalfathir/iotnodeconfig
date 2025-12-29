@@ -386,7 +386,7 @@
 
   <div style="display:flex; gap:10px;">
     <button class="btn btn-primary" onclick="connectBLE()">Connect BLE</button>
-    <button class="btn" onclick="getConfig()">Get Config</button>
+    <!-- <button class="btn" onclick="getConfig()">Get Config</button> -->
   </div>
 </header>
 
@@ -519,7 +519,7 @@
 
 <div class="action-panel">
 <button class="action-btn primary" onclick="saveConfig()">💾 Save Config</button>
-<button class="action-btn secondary" onclick="downloadConfig()">📥 Download JSON</button>
+<!-- <button class="action-btn secondary" onclick="downloadConfig()">📥 Download JSON</button> -->
 </div>
 
 <footer>BLE Config Panel • IoT Node</footer>
@@ -560,6 +560,7 @@ async function connectBLE() {
 
   console.log("BLE connected");
   alert("BLE connected");
+  getConfig();
 }
 
 function onBleMessage(event) {
